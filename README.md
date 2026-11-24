@@ -1,4 +1,4 @@
-# База данных «Сеть пекарен»
+<img width="4970" height="2725" alt="er_diagram pgerd" src="https://github.com/user-attachments/assets/d4c5bcdd-547f-4d6a-8b4f-7586606e361a" /># База данных «Сеть пекарен»
 
 ## Описание
 Реляционная база данных для автоматизации полного цикла работы сети пекарен:
@@ -42,6 +42,8 @@ psql -U postgres -d bakery_chain -f data_insertion.sql
 # 4. Запустить тестовые запросы
 psql -U postgres -d bakery_chain -f test_queries.sql
 
+## ER-диаграмма
+![ER-диаграмма](docs/er_diagram.png)
 
 ## Автор
 Назаров Никита, группа РПО 24/3  
