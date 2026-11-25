@@ -1547,3 +1547,94 @@ SELECT
     (CURRENT_TIMESTAMP - ((i * 3) || ' days')::INTERVAL - (i % 24) * INTERVAL '1 hour') AS incident_date
 
 FROM generate_series(1, 50) AS i;
+
+-- ==========================================
+-- Заполнение таблицы audit_logs (50 записей)
+-- ==========================================
+
+INSERT INTO audit_logs (table_name, record_id, action, employee_id, old_value, new_value, changed_by, changed_at) VALUES
+-- === ИЗМЕНЕНИЯ ЦЕН ПРОДУКТОВ (products) ===
+('products', 1, 'UPDATE', 1, '{"price_for_customer": 80.00}', '{"price_for_customer": 95.00}', 3, '2026-11-20 09:15:00'),
+('products', 2, 'UPDATE', 2, '{"price_for_customer": 150.00}', '{"price_for_customer": 180.00}', 3, '2026-11-20 09:20:00'),
+('products', 3, 'UPDATE', 3, '{"price_for_customer": 220.00}', '{"price_for_customer": 250.00}', 3, '2026-11-20 10:00:00'),
+('products', 4, 'UPDATE', 4, '{"price_for_customer": 120.00}', '{"price_for_customer": 135.00}', 3, '2026-11-21 08:30:00'),
+('products', 5, 'UPDATE', 5, '{"price_for_customer": 300.00}', '{"price_for_customer": 350.00}', 3, '2026-11-21 09:00:00'),
+
+-- === ДОБАВЛЕНИЕ НОВЫХ ПРОДУКТОВ ===
+('products', 34, 'INSERT', NULL, NULL, '{"name": "Круассан миндальный", "price_for_customer": 140.00, "lifespan_hours": 24, "category_id": 2}', 5, '2026-11-21 11:00:00'),
+('products', 35, 'INSERT', NULL, NULL, '{"name": "Пирог с вишней", "price_for_customer": 450.00, "lifespan_hours": 48, "category_id": 3}', 5, '2026-11-21 11:30:00'),
+('products', 36, 'INSERT', NULL, NULL, '{"name": "Булочка с корицей", "price_for_customer": 90.00, "lifespan_hours": 24, "category_id": 2}', 5, '2026-11-22 09:00:00'),
+
+-- === ИЗМЕНЕНИЯ ОСТАТКОВ НА СКЛАДЕ ===
+('inventory_ingredients', 1, 'UPDATE', 7, '{"quantity": 50.00}', '{"quantity": 35.50}', 7, '2026-11-20 14:00:00'),
+('inventory_ingredients', 2, 'UPDATE', 7, '{"quantity": 100.00}', '{"quantity": 80.00}', 7, '2026-11-20 14:15:00'),
+('inventory_ingredients', 3, 'UPDATE', 8, '{"quantity": 200.00}', '{"quantity": 150.00}', 8, '2026-11-21 10:00:00'),
+('inventory_products', 1, 'UPDATE', 9, '{"quantity": 30}', '{"quantity": 15}', 9, '2026-11-21 18:00:00'),
+('inventory_products', 2, 'UPDATE', 9, '{"quantity": 25}', '{"quantity": 10}', 9, '2026-11-21 18:30:00'),
+('inventory_products', 3, 'UPDATE', 10, '{"quantity": 40}', '{"quantity": 20}', 10, '2026-11-22 17:00:00'),
+
+-- === ПОСТАВКИ ОТ ПОСТАВЩИКОВ ===
+('warehouse_deliveries', 1, 'INSERT', NULL, NULL, '{"supplier_id": 1, "ingredient_id": 1, "quantity": 500.00, "delivery_cost": 1500.00}', 6, '2026-11-19 08:00:00'),
+('warehouse_deliveries', 2, 'INSERT', NULL, NULL, '{"supplier_id": 2, "ingredient_id": 3, "quantity": 200.00, "delivery_cost": 800.00}', 6, '2026-11-20 08:00:00'),
+('warehouse_deliveries', 3, 'INSERT', NULL, NULL, '{"supplier_id": 1, "ingredient_id": 5, "quantity": 150.00, "delivery_cost": 600.00}', 6, '2026-11-21 08:00:00'),
+('warehouse_deliveries', 4, 'INSERT', NULL, NULL, '{"supplier_id": 3, "ingredient_id": 7, "quantity": 300.00, "delivery_cost": 1200.00}', 6, '2026-11-22 08:00:00'),
+
+-- === ПРОДАЖИ ===
+('sales', 101, 'INSERT', NULL, NULL, '{"customer_id": 5, "employee_id": 2, "bakery_id": 1, "total_amount": 450.00, "payment_method": "card"}', 2, '2026-11-22 10:30:00'),
+('sales', 102, 'INSERT', NULL, NULL, '{"customer_id": 8, "employee_id": 2, "bakery_id": 1, "total_amount": 320.00, "payment_method": "cash"}', 2, '2026-11-22 11:15:00'),
+('sales', 103, 'INSERT', NULL, NULL, '{"customer_id": 12, "employee_id": 4, "bakery_id": 2, "total_amount": 780.00, "payment_method": "card"}', 4, '2026-11-22 12:00:00'),
+('sales', 104, 'INSERT', NULL, NULL, '{"customer_id": 3, "employee_id": 4, "bakery_id": 2, "total_amount": 250.00, "payment_method": "cash"}', 4, '2026-11-22 13:30:00'),
+('sales', 105, 'INSERT', NULL, NULL, '{"customer_id": 15, "employee_id": 6, "bakery_id": 3, "total_amount": 920.00, "payment_method": "card"}', 6, '2026-11-23 09:45:00'),
+
+('sales', 101, 'UPDATE', 2, '{"status": "not_completed"}', '{"status": "completed"}', 2, '2026-11-22 10:35:00'),
+('sales', 102, 'UPDATE', 2, '{"status": "not_completed"}', '{"status": "completed"}', 2, '2026-11-22 11:20:00'),
+('sales', 103, 'UPDATE', 4, '{"status": "not_completed"}', '{"status": "completed"}', 4, '2026-11-22 12:05:00'),
+
+-- === ВОЗВРАТЫ ТОВАРОВ ===
+('returns', 1, 'INSERT', NULL, NULL, '{"sale_id": 101, "product_id": 5, "refund_amount": 140.00, "reason": "Не понравился вкус"}', 2, '2026-11-22 15:00:00'),
+('returns', 2, 'INSERT', NULL, NULL, '{"sale_id": 103, "product_id": 8, "refund_amount": 250.00, "reason": "Просроченный товар"}', 4, '2026-11-22 16:30:00'),
+('returns', 3, 'INSERT', NULL, NULL, '{"sale_id": 105, "product_id": 12, "refund_amount": 180.00, "reason": "Брак продукции"}', 6, '2026-11-23 14:00:00'),
+
+-- === СПИСАНИЯ ТОВАРОВ ===
+('write_offs', 1, 'INSERT', NULL, NULL, '{"product_id": 20, "quantity": 5.00, "cost_per_unit": 120.00, "reason": "Истёк срок годности", "status": "completed"}', 7, '2026-11-22 20:00:00'),
+('write_offs', 2, 'INSERT', NULL, NULL, '{"product_id": 21, "quantity": 3.00, "cost_per_unit": 150.00, "reason": "Повреждена упаковка", "status": "completed"}', 8, '2026-11-22 20:30:00'),
+('write_offs', 3, 'INSERT', NULL, NULL, '{"product_id": 22, "quantity": 10.00, "cost_per_unit": 90.00, "reason": "Истёк срок годности", "status": "in_progress"}', 9, '2026-11-23 21:00:00'),
+
+-- === МЕДИЦИНСКИЕ КНИЖКИ СОТРУДНИКОВ ===
+('medical_books', 1, 'UPDATE', 1, '{"status": "active"}', '{"status": "overdue"}', 5, '2026-11-18 09:00:00'),
+('medical_books', 2, 'UPDATE', 3, '{"status": "active"}', '{"status": "overdue"}', 5, '2026-11-19 09:00:00'),
+('medical_books', 4, 'UPDATE', 5, '{"status": "overdue"}', '{"status": "active"}', 5, '2026-11-20 10:00:00'),
+
+('medical_books', 6, 'INSERT', NULL, NULL, '{"employee_id": 8, "medical_record_number": "МК-2026-008", "validity_period": 12, "status": "active"}', 5, '2026-11-21 11:00:00'),
+('medical_books', 7, 'INSERT', NULL, NULL, '{"employee_id": 9, "medical_record_number": "МК-2026-009", "validity_period": 12, "status": "active"}', 5, '2026-11-21 11:30:00'),
+
+-- === ГРАФИКИ РАБОТЫ ===
+('work_schedules', 1, 'INSERT', NULL, NULL, '{"employee_id": 1, "start_date": "2026-11-25 08:00:00", "end_date": "2026-11-25 17:00:00", "tip_day": "worker"}', 5, '2026-11-20 16:00:00'),
+('work_schedules', 2, 'INSERT', NULL, NULL, '{"employee_id": 2, "start_date": "2026-11-25 08:00:00", "end_date": "2026-11-25 17:00:00", "tip_day": "worker"}', 5, '2026-11-20 16:05:00'),
+('work_schedules', 3, 'INSERT', NULL, NULL, '{"employee_id": 3, "start_date": "2026-11-25 00:00:00", "end_date": "2026-11-25 23:59:59", "tip_day": "day_off"}', 5, '2026-11-20 16:10:00'),
+('work_schedules', 4, 'UPDATE', 1, '{"tip_day": "worker"}', '{"tip_day": "disease"}', 5, '2026-11-22 08:00:00'),
+
+-- === ОТПУСКА ===
+('vacations', 1, 'INSERT', NULL, NULL, '{"employee_id": 4, "year": "2026", "type": "Ежегодный", "start_date": "2026-12-01 00:00:00", "end_date": "2026-12-14 23:59:59", "day_count": 14, "status": "active"}', 5, '2026-11-15 10:00:00'),
+('vacations', 2, 'INSERT', NULL, NULL, '{"employee_id": 6, "year": "2026", "type": "Ежегодный", "start_date": "2026-12-15 00:00:00", "end_date": "2026-12-28 23:59:59", "day_count": 14, "status": "active"}', 5, '2026-11-15 10:30:00'),
+('vacations', 3, 'INSERT', NULL, NULL, '{"employee_id": 8, "year": "2026", "type": "За свой счёт", "start_date": "2026-11-28 00:00:00", "end_date": "2026-11-30 23:59:59", "day_count": 3, "status": "active"}', 5, '2026-11-20 14:00:00'),
+
+-- === ВЫПЛАТЫ ЗАРПЛАТЫ ===
+('salary_payments', 1, 'INSERT', NULL, NULL, '{"employee_id": 1, "bakery_id": 1, "base_amount": 45000.00, "bonus_amount": 5000.00, "taxes_amount": 6500.00, "total_amount": 56500.00, "status": "completed"}', 5, '2026-11-10 09:00:00'),
+('salary_payments', 2, 'INSERT', NULL, NULL, '{"employee_id": 2, "bakery_id": 1, "base_amount": 40000.00, "bonus_amount": 4000.00, "taxes_amount": 5720.00, "total_amount": 49720.00, "status": "completed"}', 5, '2026-11-10 09:15:00'),
+('salary_payments', 3, 'INSERT', NULL, NULL, '{"employee_id": 3, "bakery_id": 2, "base_amount": 50000.00, "bonus_amount": 7000.00, "taxes_amount": 7410.00, "total_amount": 64410.00, "status": "completed"}', 5, '2026-11-10 09:30:00'),
+
+-- === ЖАЛОБЫ КЛИЕНТОВ ===
+('customer_complaints', 1, 'INSERT', NULL, NULL, '{"customer_id": 5, "bakery_id": 1, "complaint_type": "quality", "severity": "medium", "status": "open"}', 2, '2026-11-22 14:00:00'),
+('customer_complaints', 2, 'INSERT', NULL, NULL, '{"customer_id": 8, "bakery_id": 2, "complaint_type": "service", "severity": "low", "status": "open"}', 4, '2026-11-22 15:30:00'),
+('customer_complaints', 3, 'INSERT', NULL, NULL, '{"customer_id": 12, "bakery_id": 1, "complaint_type": "hygiene", "severity": "high", "status": "open"}', 2, '2026-11-23 10:00:00'),
+('customer_complaints', 1, 'UPDATE', 2, '{"status": "open"}', '{"status": "completed"}', 3, '2026-11-23 11:00:00'),
+
+-- === ДЕФЕКТЫ ПРИ ПОСТАВКАХ ===
+('delivery_defects', 1, 'INSERT', NULL, NULL, '{"defect_type": "manufacturing", "quantity": 10.00, "comment": "Мука с комками", "status": "in_processing"}', 7, '2026-11-19 10:00:00'),
+('delivery_defects', 2, 'INSERT', NULL, NULL, '{"defect_type": "transit", "quantity": 5.00, "comment": "Шоколад растаял при транспортировке", "status": "processed"}', 7, '2026-11-20 11:00:00'),
+('delivery_defects', 3, 'INSERT', NULL, NULL, '{"defect_type": "warehouse", "quantity": 3.00, "comment": "Нарушен температурный режим хранения", "status": "in_processing"}', 8, '2026-11-21 14:00:00'),
+
+-- === УДАЛЕНИЕ ЗАПИСЕЙ (примеры) ===
+('discounts', 15, 'DELETE', 3, '{"name": "Чёрная пятница", "value": 20.00, "type": "percentage", "status": "inactive"}', NULL, 3, '2026-11-23 18:00:00'),
+('sale_details', 450, 'DELETE', 2, '{"sale_id": 101, "product_id": 5, "quantity": 2.00, "total_per_item": 280.00}', NULL, 2, '2026-11-22 16:00:00');

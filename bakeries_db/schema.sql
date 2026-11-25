@@ -488,6 +488,19 @@ CREATE TABLE loyalty_cards
 );
 
 
+CREATE TABLE audit_logs (
+	id SERIAL PRIMARY KEY,
+	table_name VARCHAR(24) NOT NULL,
+	record_id INTEGER,
+	action VARCHAR NOT NULL CHECK (action IN ('INSERT', 'UPDATE', 'DELETE')),
+	employee_id INTEGER REFERENCES employees(id),
+	old_value JSONB,
+	new_value JSONB,
+	changed_by INTEGER REFERENCES employees(id),
+	changed_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+
 CREATE INDEX idx_supplier_ingredients_supplier_id ON supplier_ingredients(supplier_id);
 CREATE INDEX idx_supplier_ingredients_ingredient_id ON supplier_ingredients(ingredient_id);
 
@@ -571,5 +584,7 @@ CREATE INDEX idx_delivery_defects_employee_id   ON delivery_defects(employee_id)
 
 CREATE INDEX idx_ingredient_price_history_supplier_id   ON ingredient_price_history(supplier_id);
 CREATE INDEX idx_ingredient_price_history_ingredient_id ON ingredient_price_history(ingredient_id);
+
+CREATE INDEX idx_audit_logs_changed_by ON audit_logs(changed_by);
 
 COMMIT;
