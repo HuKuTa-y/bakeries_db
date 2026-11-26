@@ -324,4 +324,34 @@ SELECT e.fullname AS "ФИО", tw.total_quantity AS "Кол-во продукц�
 FROM employees e
 JOIN top_workers tw ON tw.employee_id = e.id;
 
---лл
+-- 31.1 Остаток ингредиентов на складе на сегодняшний день,
+-- сортировка по срочности срока годности
+SELECT 
+    i.name AS "Ингредиент",
+   	SUM(ii.quantity) AS "Остаток на складе",
+	i.unit_type AS "Ед. измерения", 
+	ii.expiration_date AS "Срок годности", 
+	ii.expiration_date - CURRENT_DATE AS "Дней осталось"
+FROM inventory_ingredients ii
+JOIN ingredients i ON ii.ingredient_id = i.id
+WHERE ii.expiration_date >= CURRENT_DATE
+GROUP BY i.name, i.unit_type, ii.expiration_date
+HAVING SUM(ii.quantity) > 0
+ORDER BY SUM(ii.expiration_date - CURRENT_DATE) ASC;
+
+
+-- 31.2 Остаток продуктов на складе на сегодняшний день, 
+-- сортировка по срочности срока годности
+SELECT 
+    p.name AS "Продукт",
+    pc.name AS "Категория",
+    SUM(ip.quantity) AS "Остаток на складе (шт)",
+	ip.expiration_date AS "Срок годности",
+	ip.expiration_date - CURRENT_DATE AS "Дней осталось"
+FROM inventory_products ip
+JOIN products p ON ip.product_id = p.id
+JOIN product_categories pc ON p.category_id = pc.id
+WHERE ip.expiration_date >= CURRENT_DATE
+GROUP BY p.name, pc.name, ip.expiration_date
+HAVING SUM(ip.quantity) > 0
+ORDER BY SUM(ip.expiration_date - CURRENT_DATE) ASC;
